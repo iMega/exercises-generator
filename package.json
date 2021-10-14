@@ -1,0 +1,27 @@
+{
+  "name": "exercises-generator",
+  "version": "1.0.0",
+  "description": "Single page application for exercise generator for english",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imega/exercises-generator.git"
+  },
+  "keywords": [
+    "pdf",
+    "reactjs",
+    "ant",
+    "design",
+    "github",
+    "pages"
+  ],
+  "author": "Dmitry Stoletoff",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/imega/exercises-generator/issues"
+  },
+  "homepage": "https://github.com/imega/exercises-generator#readme"
+}
