@@ -1,18 +1,16 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { Row, Col, Form, Input, Checkbox, Button } from "antd";
-import { jsPDF } from "jspdf";
+// import { jsPDF } from "jspdf";
 
 const style = { padding: "16px" };
 const IndexPage = () => {
     return (
         <main>
-            <Helmet title="foo bar" defer={true}>
-                <script
-                    defer={true}
-                    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"
-                />
-            </Helmet>
+            <Helmet
+                title="Exercises generator for English"
+                defer={true}
+            ></Helmet>
             <Row>
                 <Col md={2} lg={4} xl={5} xxl={6} />
                 <Col style={style} xs={24} md={20} lg={16} xl={14} xxl={12}>
@@ -136,6 +134,8 @@ const prepareDoc = (v) => {
                     ...task,
                     tense: "Future",
                 };
+            default:
+                return {};
         }
     });
 
@@ -188,62 +188,66 @@ const mergeTask = (tasks, items, cb) => {
 const onFinish = (v) => {
     const doc = prepareDoc(v);
 
-    const pdf = new jsPDF();
+    import("jspdf").then((jspdf) => {
+        const pdf = new jspdf.jsPDF();
+        // const pdf = new jsPDF();
 
-    pdf.setFontSize(12);
+        pdf.setFontSize(12);
 
-    let xLine = 0;
-    for (let idx = 0; idx < doc.length; idx++) {
-        const { tense, form, pronoun } = doc[idx];
-        const l = pdf.getTextWidth(`${tense}, ${form}, (${pronoun})`);
-        if (xLine < l) {
-            xLine = l;
-        }
-    }
-
-    const maxHeight = 260;
-    let page = 1;
-    let itemOnPage = 0;
-    let titlePage = "";
-    for (let idx = 0; idx < doc.length; idx++) {
-        const { verb, tense, form, pronoun } = doc[idx];
-
-        if (verb !== titlePage) {
-            if (page > 1) {
-                pdf.addPage("a4", "portrait");
-                page++;
-                pdf.setPage(page);
+        let xLine = 0;
+        for (let idx = 0; idx < doc.length; idx++) {
+            const { tense, form, pronoun } = doc[idx];
+            const l = pdf.getTextWidth(`${tense}, ${form}, (${pronoun})`);
+            if (xLine < l) {
+                xLine = l;
             }
-            itemOnPage = 0;
-
-            titlePage = verb;
-            pdf.setFontSize(16);
-            pdf.text(titlePage, 10, 20);
-            pdf.setFontSize(12);
         }
 
-        if (maxHeight < y) {
-            page++;
-            itemOnPage = 0;
-            pdf.addPage("a4", "portrait");
-            pdf.setPage(page);
+        const maxHeight = 260;
+        let page = 1;
+        let itemOnPage = 0;
+        let titlePage = "";
+        let y = 0;
+        for (let idx = 0; idx < doc.length; idx++) {
+            const { verb, tense, form, pronoun } = doc[idx];
 
-            pdf.setFontSize(16);
-            pdf.text(titlePage, 10, 20);
-            pdf.setFontSize(12);
+            if (verb !== titlePage) {
+                if (page > 1) {
+                    pdf.addPage("a4", "portrait");
+                    page++;
+                    pdf.setPage(page);
+                }
+                itemOnPage = 0;
+
+                titlePage = verb;
+                pdf.setFontSize(16);
+                pdf.text(titlePage, 10, 20);
+                pdf.setFontSize(12);
+            }
+
+            if (maxHeight < y) {
+                page++;
+                itemOnPage = 0;
+                pdf.addPage("a4", "portrait");
+                pdf.setPage(page);
+
+                pdf.setFontSize(16);
+                pdf.text(titlePage, 10, 20);
+                pdf.setFontSize(12);
+            }
+
+            y = addLine(
+                pdf,
+                itemOnPage,
+                `${tense}, ${form}, (${pronoun})`,
+                xLine
+            );
+
+            itemOnPage++;
         }
 
-        const y = addLine(
-            pdf,
-            itemOnPage,
-            `${tense}, ${form}, (${pronoun})`,
-            xLine
-        );
-
-        itemOnPage++;
-    }
-
-    pdf.save("a4.pdf");
+        pdf.save("a4.pdf");
+    });
 };
 
 const addLine = (pdf, number, text, xLine) => {
